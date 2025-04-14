@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识资讯平台</title>
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #5e35b1;
+            --secondary-color: #3949ab;
+            --accent-color: #7c4dff;
+            --light-color: #f5f5f5;
+            --dark-color: #263238;
+            --success-color: #43a047;
+            --warning-color: #fb8c00;
+            --danger-color: #e53935;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* 按钮容器样式 */
+        .button-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 15px 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .button-container button {
+            padding: 12px 30px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-container button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .button-container button.active {
+            background-color: var(--secondary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) inset;
+        }
+
+        /* 内容容器 */
+        .content-container {
+            margin-top: 80px;
+            padding: 30px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 第一部分：定位展示知识点视图 */
+        .knowledge-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            margin: 0 auto 50px;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .center-icon {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 30px auto;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(94, 53, 177, 0.3);
+            z-index: 10;
+            background-image: url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80');
+            background-size: cover;
+            background-position: center;
+            transition: all 0.5s ease;
+            border: 5px solid white;
+        }
+
+        .center-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(94, 53, 177, 0.5);
+        }
+
+        .knowledge-point {
+            position: absolute;
+            width: 220px;
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .knowledge-point:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .point-1 {
+            top: 50px;
+            left: 50px;
+            z-index: 3;
+            background-color: #f3e5f5;
+        }
+
+        .point-2 {
+            top: 50px;
+            right: 50px;
+            z-index: 2;
+            background-color: #e8eaf6;
+        }
+
+        .point-3 {
+            bottom: 50px;
+            left: 50px;
+            z-index: 1;
+            background-color: #e3f2fd;
+        }
+
+        .point-4 {
+            bottom: 50px;
+            right: 50px;
+            z-index: 4;
+            background-color: #f1f8e9;
+        }
+
+        .knowledge-point h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .knowledge-point ul {
+            padding-left: 20px;
+        }
+
+        .knowledge-point li {
+            margin-bottom: 8px;
+            color: #555;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .knowledge-point li:before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        /* 第二部分：新闻资讯网页 */
+        .news-container {
+            width: 100%;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            display: none;
+        }
+
+        .news-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .news-header h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 28px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .news-header h2:after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--accent-color);
+            border-radius: 3px;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ddd, transparent);
+            margin: 25px 0;
+        }
+
+        .news-content {
+            display: flex;
+            gap: 30px;
+        }
+
+        .main-news {
+            flex: 2;
+        }
+
+        .hot-news {
+            flex: 1;
+            border-left: 1px solid #eee;
+            padding-left: 30px;
+        }
+
+        .news-item {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #eee;
+            transition: all 0.3s ease;
+        }
+
+        .news-item:hover {
+            transform: translateX(5px);
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-item h4 {
+            color: var(--dark-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .news-item h4 a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .news-item h4 a:hover {
+            color: var(--primary-color);
+        }
+
+        .news-images {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .news-images img {
+            width: 48%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.5s ease;
+        }
+
+        .news-images img:hover {
+            transform: scale(1.03);
+        }
+
+        .author-info {
+            font-size: 14px;
+            color: #777;
+            display: flex;
+            align-items: center;
+        }
+
+        .author-info span {
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .author-info i {
+            margin-right: 5px;
+            color: var(--primary-color);
+        }
+
+        .hot-news h4 {
+            color: var(--dark-color);
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .hot-news-item {
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .hot-news-item:hover {
+            transform: translateX(5px);
+        }
+
+        .hot-news-item a {
+            display: block;
+            color: var(--dark-color);
+            text-decoration: none;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .hot-news-item a:hover {
+            color: var(--primary-color);
+        }
+
+        .hot-news-img {
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .hot-news-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .hot-news-img:hover img {
+            transform: scale(1.05);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .news-content {
+                flex-direction: column;
+            }
+            
+            .hot-news {
+                border-left: none;
+                border-top: 1px solid #eee;
+                padding-left: 0;
+                padding-top: 30px;
+                margin-top: 30px;
+            }
+            
+            .knowledge-container {
+                height: auto;
+                padding: 20px;
+            }
+            
+            .knowledge-point {
+                width: 80%;
+                position: relative;
+                top: auto;
+                left: auto;
+                right: auto;
+                bottom: auto;
+                margin: 20px auto;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .button-container {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .button-container button {
+                width: 100%;
+            }
+            
+            .content-container {
+                margin-top: 120px;
+                padding: 15px;
+            }
+            
+            .news-images {
+                flex-direction: column;
+            }
+            
+            .news-images img {
+                width: 100%;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="button-container">
+        <button id="knowledgeBtn" class="active" onclick="showSection('knowledge')"><i class="fas fa-lightbulb"></i> 知识点展示</button>
+        <button id="newsBtn" onclick="showSection('news')"><i class="fas fa-newspaper"></i> 新闻资讯</button>
+    </div>
+    <div class="content-container">
+        <!-- 第一部分：定位展示知识点视图 -->
+        <div id="knowledge" class="knowledge-container fade-in">
+            <div class="center-icon"></div>
+
+            <div class="knowledge-point point-1">
+                <h3>编程基础</h3>
+                <ul>
+                    <li>数据结构与算法</li>
+                    <li>面向对象编程</li>
+                    <li>设计模式</li>
+                    <li>代码调试技巧</li>
+                </ul>
+            </div>
+
+            <div class="knowledge-point point-2">
+                <h3>Web开发</h3>
+                <ul>
+                    <li>HTTP协议与REST API</li>
+                    <li>前端框架应用</li>
+                    <li>数据库设计</li>
+                    <li>安全防护措施</li>
+                </ul>
+            </div>
+
+            <div class="knowledge-point point-3">
+                <h3>移动开发</h3>
+                <ul>
+                    <li>Android开发基础</li>
+                    <li>iOS开发基础</li>
+                    <li>跨平台框架</li>
+                    <li>性能优化</li>
+                </ul>
+            </div>
+            
+            <div class="knowledge-point point-4">
+                <h3>人工智能</h3>
+                <ul>
+                    <li>机器学习基础</li>
+                    <li>深度学习框架</li>
+                    <li>自然语言处理</li>
+                    <li>计算机视觉</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 第二部分：新闻资讯网页 -->
+        <div id="news" class="news-container">
+            <div class="news-header">
+                <h2>科技前沿资讯</h2>
+                <hr>
+            </div>
+
+            <div class="news-content">
+                <div class="main-news">
+                    <div class="news-item">
+                        <h4><a href="#">新一代神经网络架构突破图像识别准确率</a></h4>
+                        <div class="news-images">
+                            <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80"
+                                alt="神经网络">
+                            <img src="https://images.unsplash.com/photo-1629909613654-28e377c0b8e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80"
+                                alt="AI应用">
+                        </div>
+                        <p class="author-info">
+                            <span><i class="fas fa-user"></i> AI科技</span>
+                            <span><i class="fas fa-calendar-alt"></i> 2023-06-20</span>
+                            <span><i class="fas fa-eye"></i> 3.2k浏览</span>
+                        </p>
+                    </div>
+
+                    <div class="news-item">
+                        <h4><a href="#">区块链3.0技术将如何改变金融行业</a></h4>
+                        <div class="news-images">
+                            <img src="https://images.unsplash.com/photo-1639762681057-408e52192e55?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80"
+                                alt="区块链">
+                            <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80"
+                                alt="金融科技">
+                        </div>
+                        <p class="author-info">
+                            <span><i class="fas fa-user"></i> 金融科技</span>
+                            <span><i class="fas fa-calendar-alt"></i> 2023-06-19</span>
+                            <span><i class="fas fa-eye"></i> 2.7k浏览</span>
+                        </p>
+                    </div>
+
+                    <div class="news-item">
+                        <h4><a href="#">5G+物联网推动智慧城市建设加速</a></h4>
+                        <div class="news-images">
+                            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80"
+                                alt="5G技术">
+                            <img src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80"
+                                alt="智慧城市">
+                        </div>
+                        <p class="author-info">
+                            <span><i class="fas fa-user"></i> 城市科技</span>
+                            <span><i class="fas fa-calendar-alt"></i> 2023-06-18</span>
+                            <span><i class="fas fa-eye"></i> 1.9k浏览</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="hot-news">
+                    <h4>热门推荐</h4>
+                    <hr>
+
+                    <div class="hot-news-item">
+                        <a href="#">元宇宙概念持续升温，多家巨头布局虚拟世界</a>
+                        <div class="hot-news-img">
+                            <img src="https://images.unsplash.com/photo-1639762681057-408e52192e55?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80"
+                                alt="元宇宙">
+                        </div>
+                    </div>
+
+                    <div class="hot-news-item">
+                        <a href="#">自动驾驶技术取得重大突破，L5级或提前实现</a>
+                        <div class="hot-news-img">
+                            <img src="https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80"
+                                alt="自动驾驶">
+                        </div>
+                    </div>
+
+                    <div class="hot-news-item">
+                        <a href="#">生物科技公司宣布基因编辑技术新进展</a>
+                        <div class="hot-news-img">
+                            <img src="https://images.unsplash.com/photo-1575505586569-646b2ca898fc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80"
+                                alt="基因编辑">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function showSection(sectionId) {
+            const knowledgeSection = document.getElementById('knowledge');
+            const newsSection = document.getElementById('news');
+            const knowledgeBtn = document.getElementById('knowledgeBtn');
+            const newsBtn = document.getElementById('newsBtn');
+
+            if (sectionId === 'knowledge') {    
+                knowledgeSection.style.display = 'block';
+                newsSection.style.display = 'none';
+                knowledgeBtn.classList.add('active');
+                newsBtn.classList.remove('active');
+                
+                // 添加淡入动画
+                knowledgeSection.classList.remove('fade-in');
+                void knowledgeSection.offsetWidth; // 触发重绘
+                knowledgeSection.classList.add('fade-in');
+            } else if (sectionId === 'news') {
+                newsSection.style.display = 'block';
+                knowledgeSection.style.display = 'none';
+                newsBtn.classList.add('active');
+                knowledgeBtn.classList.remove('active');
+                
+                // 添加淡入动画
+                newsSection.classList.remove('fade-in');
+                void newsSection.offsetWidth; // 触发重绘
+                newsSection.classList.add('fade-in');
+            }
+        }
+
+        // 默认显示知识点部分
+        showSection('knowledge');
+    </script>
+</body>
+
+</html>
